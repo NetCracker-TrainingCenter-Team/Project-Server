@@ -46,6 +46,13 @@ public class Server {
             this.clientSocket = client;
         }
 
+        /**
+         * Метод создания данных
+         * @param in - поток для входных данных
+         * @param out - поток для выходных данных
+         * @param dataModifFile - значение последнего изменения файла
+         * @param testEmpty - проверка на существование данных
+         */
         public void addData (DataInputStream in,DataOutputStream out,long dataModifFile,boolean testEmpty) {
             try {
                 dataModifFile = 0;
@@ -114,55 +121,6 @@ public class Server {
                 long dataModifFile = 0;
                 boolean testEmpty=false;
                 addData(in,out,dataModifFile,testEmpty);
-                /*String nameFile = in.readUTF();
-                categories=new ArrayList<>();
-                dishes = new ArrayList<>();
-                if (!nameFile.equals("newDish")) {
-                    file=new File(nameFile);
-                    dataModifFile=file.lastModified();
-                    if(file.length()>0){
-                        out.writeUTF("yes");
-                        out.flush();
-                        String clientReaction = in.readUTF();
-                        if(clientReaction.equals("newData")){
-                            Serialize.deserializeFile(nameFile,in);
-                            if(file.length()>0){
-                                dishes = Serialize.deserialize(file);
-                                categories.add(dishes.get(0).getCategory());
-                                Controller.addCategoryByDish(dishes,categories);
-                                testEmpty=true;
-                                out.writeUTF("not");
-                                out.flush();
-                            } else {
-                                out.writeUTF("empty");
-                                out.flush();
-                            }
-                        }else {
-                            dishes = Serialize.deserialize(file);
-                            categories.add(dishes.get(0).getCategory());
-                            Controller.addCategoryByDish(dishes, categories);
-                            testEmpty = true;
-                        }
-                    } else {
-                        out.writeUTF("not");
-                        out.flush();
-                        Serialize.deserializeFile(nameFile,in);
-                        if(file.length()>0){
-                            dishes = Serialize.deserialize(file);
-                            categories.add(dishes.get(0).getCategory());
-                            Controller.addCategoryByDish(dishes,categories);
-                            testEmpty=true;
-                            out.writeUTF("not");
-                            out.flush();
-                        } else {
-                            out.writeUTF("empty");
-                            out.flush();
-                        }
-                    }
-                }else {
-                    out.writeUTF("empty");
-                    out.flush();
-                }*/
                 while (!clientSocket.isClosed()) {
                     if(dataModifFile != 0){
                         if(dataModifFile != file.lastModified()){
@@ -242,9 +200,9 @@ public class Server {
                         case "searchFile":
                             File directory = new File((this.getClass().getProtectionDomain().getCodeSource().getLocation()).getPath().replace("/target/classes",""));
                             StringBuffer fileList=new StringBuffer();
-                            for ( File file : directory.listFiles() ){
-                                if ( file.isFile() && file.getName().contains(".json"))
-                                    fileList.append(file.getName()+"*");
+                            for ( File newfile : directory.listFiles() ){
+                                if ( newfile.isFile() && newfile.getName().contains(".json")&& file.getName()!=newfile.getName())
+                                    fileList.append(newfile.getName()+"*");
                             }
                             out.writeUTF(fileList.toString());
                             out.flush();
@@ -325,18 +283,6 @@ public class Server {
                             dataModifFile=newFile.lastModified();
                             break;
                         case "openNewFile":
-                            /*name = in.readUTF();
-                            newFile= new File(name);
-                            if(newFile.length()>0) {
-                                dishes = Serialize.deserialize(newFile);
-                                categories.add(dishes.get(0).getCategory());
-                                Controller.addCategoryByDish(dishes,categories);
-                                dataModifFile = newFile.lastModified();
-                            }
-                            else{
-                                dataModifFile = newFile.lastModified();
-                                testEmpty=false;
-                            }*/
                             addData(in,out,dataModifFile,testEmpty);
                             break;
                         case "downloadFile":
